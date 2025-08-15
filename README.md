@@ -80,10 +80,6 @@ flowchart TD
 
 ## SonarQube Backup, Recovery, and MTTR
 
-
-
-
-
 ### SonarQube Backup & Recovery Commands
 
 #### Backup Database (PostgreSQL example)
@@ -144,7 +140,9 @@ sudo systemctl status sonarqube
 <img width="600" height="358" alt="Screenshot from 2025-08-15 12-32-00" src="https://github.com/user-attachments/assets/f8f57458-4963-40a3-818b-9b960ce674bd" />
 
 #### Open browser to verify dashboards, projects, and metrics
+
 http://<server-ip>:9000  
+
 >*Verify SonarQube dashboards, projects, and metrics.*
 
 <img width="600" height="400" alt="Screenshot from 2025-08-15 12-34-52" src="https://github.com/user-attachments/assets/1cb77fa8-b5dc-4894-a8ba-63ec9d79b941" />
