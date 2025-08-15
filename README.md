@@ -1,7 +1,7 @@
 # SonarQube - Disaster Recovery
 
----
-<img width="312" height="162" alt="sonarqube" src="https://github.com/user-attachments/assets/20dfaea7-a131-4f6a-9690-03b59d2d17f4" />
+
+<img width="200" height="162" alt="sonarqube" src="https://github.com/user-attachments/assets/20dfaea7-a131-4f6a-9690-03b59d2d17f4" />
 
 
 ---
@@ -80,49 +80,75 @@ flowchart TD
 
 ## SonarQube Backup, Recovery, and MTTR
 
-### Backup
 
-#### What to backup
-- SonarQube Home folder (`/opt/sonarqube` or configured path)
-  - `conf/` – configurations
-  - `data/` – project caches, logs
-  - `extensions/plugins/` – installed plugins
-- Custom scripts/integrations
-- Database dump (PostgreSQL/MySQL/Oracle)
 
-#### How to backup
 
-| Method | Description |
-|--------|-------------|
-| DB Dump | Use `pg_dump` for PostgreSQL or equivalent for MySQL/Oracle |
-| File System Backup | Backup `conf`, `data`, `extensions` directories |
-| Cloud Storage | Store backups offsite on S3, GCP, or Azure |
 
-#### Frequency
-- Nightly, or after critical changes
+### SonarQube Backup & Recovery Commands
 
-### Recovery
+#### Backup Database (PostgreSQL example)
+pg_dump -U sonar -h localhost sonarqube_db > sonarqube_backup_$(date +%F).sql  
+>*Backup PostgreSQL database 'sonarqube_db' as user 'sonar' and save with current date.*
 
-#### Steps to restore SonarQube
-1. Install SonarQube on a new server
-2. Stop SonarQube service:
-```bash
-sudo systemctl stop sonarqube
-```
-3. Restore SonarQube files and database from backup:
-```bash
-# Restore files
-tar -xzf sonarqube_backup.tar.gz -C /opt/sonarqube
-sudo chown -R sonarqube:sonarqube /opt/sonarqube
+ls -lh sonarqube_backup_*.sql  
+>*List database backup file with human-readable size.*
 
-# Restore database
-psql -U sonar -d sonarqube_db -f sonarqube_backup.sql
-```
-4. Start SonarQube service:
-```bash
-sudo systemctl start sonarqube
-```
-5. Verify SonarQube dashboards, projects, and metrics
+<img width="600" height="87" alt="Screenshot from 2025-08-15 12-25-50" src="https://github.com/user-attachments/assets/cff451eb-5c86-4047-8636-38ca4a8d65f3" />
+
+
+#### Backup SonarQube Files
+sudo tar -czvf sonarqube_files_backup_$(date +%F).tar.gz /opt/sonarqube  
+>*Compress entire SonarQube home folder '/opt/sonarqube' into a dated '.tar.gz' archive.*
+
+ls -lh sonarqube_files_backup_*.tar.gz  
+>*Verify backup archive file and its size.*
+
+<img width="600" height="54" alt="Screenshot from 2025-08-15 12-29-24" src="https://github.com/user-attachments/assets/c9289d6a-74e8-43a5-99e2-f1b038e51689" />
+
+
+---
+
+### Recovery: Steps to restore SonarQube
+
+#### Stop SonarQube Service
+sudo systemctl stop sonarqube  
+>*Stop the running SonarQube service to safely restore files and database.*
+
+<img width="600" height="40" alt="Screenshot from 2025-08-15 12-29-42" src="https://github.com/user-attachments/assets/fd0a6e49-3fb9-4918-85a2-35abad69df73" />
+
+#### Restore Files
+sudo tar -xzf sonarqube_files_backup_2025-08-15.tar.gz -C /opt/sonarqube  
+>*Extract previously backed-up files into SonarQube home directory.*
+
+sudo chown -R sonarqube:sonarqube /opt/sonarqube  
+>*Set proper ownership of restored files to 'sonarqube' user.*
+
+<img width="600" height="52" alt="Screenshot from 2025-08-15 12-30-02" src="https://github.com/user-attachments/assets/953f519a-95fa-4531-8b64-860db4bb6de0" />
+
+
+#### Restore Database
+psql -U sonar -d sonarqube_db -h localhost -f sonarqube_backup_2025-08-15.sql  
+>*Restore PostgreSQL database from backup SQL file as user 'sonar'.*
+
+<img width="600" height="323" alt="Screenshot from 2025-08-15 12-31-06" src="https://github.com/user-attachments/assets/e9aa03d5-cd61-4c75-bbd8-f712594e4166" />
+
+
+#### Start SonarQube Service
+sudo systemctl start sonarqube  
+>*Start the SonarQube service after successful file and database restore.*
+
+#### Verify Service
+sudo systemctl status sonarqube  
+>*Check if SonarQube service is active and running.*
+
+<img width="600" height="358" alt="Screenshot from 2025-08-15 12-32-00" src="https://github.com/user-attachments/assets/f8f57458-4963-40a3-818b-9b960ce674bd" />
+
+#### Open browser to verify dashboards, projects, and metrics
+http://<server-ip>:9000  
+>*Verify SonarQube dashboards, projects, and metrics.*
+
+<img width="600" height="400" alt="Screenshot from 2025-08-15 12-34-52" src="https://github.com/user-attachments/assets/1cb77fa8-b5dc-4894-a8ba-63ec9d79b941" />
+
 
 ### MTTR (Mean Time to Recovery)
 
@@ -180,14 +206,15 @@ SonarQube Disaster Recovery ensures continuous code quality monitoring. Regular 
 
 ## FAQs
 
-1. **What is SonarQube Disaster Recovery?**  
-   - Disaster Recovery (DR) is the process of backing up and restoring SonarQube data, configuration, and plugins to ensure continuity after failures.
-
-2. **What should be backed up?**  
+1. **What should be backed up?**  
    - Important items include `conf/`, `data/`, `extensions/plugins/`, custom scripts, and the database dump.
 
-3. **Can DR be automated?**  
+2. **Can DR be automated?**  
    - Yes, using scripts or Infrastructure as Code (IaC) tools like Ansible or Terraform.
+
+3. **How often should backups be taken?**  
+   - Backups should be taken nightly or after any critical changes to ensure data can be restored quickly.
+
 
 ---
 
@@ -202,8 +229,7 @@ SonarQube Disaster Recovery ensures continuous code quality monitoring. Regular 
 
 ## References
 
-| Source | Link |
-|--------|------|
-| SonarQube Backup Documentation | Link |
-| SonarQube Disaster Recovery Guide | Link |
-| Best Practices for DR | Link |
+| Description                               | Link                                                                 |
+|-------------------------------------------|----------------------------------------------------------------------|
+| Official SonarQube 10.8 Documentation    | [SonarQube Server 10.8 Docs](https://docs.sonarsource.com/sonarqube-server/10.8/) |
+| Community Discussion on DR Setup          | [SonarQube DR Setup Thread](https://community.sonarsource.com/t/sonarqube-dr-setup/113338) |
