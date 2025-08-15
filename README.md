@@ -24,7 +24,7 @@
 - [Why we need disaster recovery in SonarQube?](#why-we-need-disaster-recovery-in-sonarqube)  
 - [Workflow](#workflow)  
 - [SonarQube Backup, Recovery, and MTTR](#sonarqube-backup-recovery-and-mttr)  
-- [Advantages & Disadvantages](#advantages-&-disadvantages)  
+- [Advantages & Disadvantages](#advantages--disadvantages)  
 - [Best Practices](#best-practices)  
 - [Conclusion](#conclusion)  
 - [FAQs](#faqs)  
